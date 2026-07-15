@@ -571,8 +571,10 @@ async def finalize_save(message: Message, state: FSMContext):
 
         pool = await get_pool()
 
+        user_id = int(message.from_user.id)  # 🔥 pastikan int (python aman)
+
         # =========================
-        # AUTO REGISTER SELLER
+        # AUTO REGISTER SELLER (FIX BIGINT)
         # =========================
         await pool.execute(
             """
@@ -583,11 +585,11 @@ async def finalize_save(message: Message, state: FSMContext):
                 first_name
             )
             VALUES
-            ($1,$2,$3)
+            ($1::bigint,$2,$3)
             ON CONFLICT (id)
             DO NOTHING
             """,
-            message.from_user.id,
+            user_id,
             message.from_user.username,
             message.from_user.first_name
         )
@@ -614,7 +616,7 @@ async def finalize_save(message: Message, state: FSMContext):
         share_link = f"{BOT_URL}?start=getFile_{code}"
 
         # =========================
-        # SAVE FILE
+        # SAVE FILE (FIX BIGINT)
         # =========================
         await pool.execute(
             """
@@ -642,28 +644,29 @@ async def finalize_save(message: Message, state: FSMContext):
             VALUES
             (
                 $1,$2,$3,$4,$5,$6,$7,$8,
-                $9,$10,$11,$12,$13,$14,$15,$16,
+                $9::bigint,$10::bigint,
+                $11,$12,$13,$14,$15,$16,
                 $17,$18
             )
             """,
-            code,                       # $1
-            title,                      # $2
-            creator,                    # $3
-            category,                   # $4
-            folder_name,                # $5
-            json.dumps(media),          # $6
-            share_media,                # $7
+            code,
+            title,
+            creator,
+            category,
+            folder_name,
+            json.dumps(media),
             share_media,
-            message.from_user.id,
-            message.from_user.id,       # $8
-            len(media),                 # $9
-            expires_at,                 # $10
-            is_paid,                    # $11
-            price,                      # $12
-            payment_provider,           # $13
-            0,                          # view_counter
-            0,                          # download_counter
-            0                           # favorite_counter
+            share_media,
+            user_id,          # 🔥 FIX
+            user_id,          # 🔥 FIX
+            len(media),
+            expires_at,
+            is_paid,
+            price,
+            payment_provider,
+            0,
+            0,
+            0
         )
 
         await state.clear()
