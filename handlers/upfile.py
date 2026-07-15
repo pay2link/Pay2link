@@ -540,84 +540,157 @@ async def input_price(message: Message, state: FSMContext):
 # FINAL SAVE
 # =========================
 async def finalize_save(message: Message, state: FSMContext):
+
     async with get_lock(message.from_user.id):
+
         data = await state.get_data()
 
         media = data.get("media", [])
 
+        if not media:
+            return await message.answer(
+                "❌ No media found"
+            )
+
+
         # =========================
         # FILE INFO
         # =========================
+
         folder_name = data.get("folder_name") or "Folder AUTO"
         title = data.get("title") or folder_name
         category = data.get("category") or "General"
+
         creator = message.from_user.full_name
+
 
         # =========================
         # SETTINGS
         # =========================
-        share_media = data.get("share_media", True)
-        expiry = data.get("expiry", 0)
-        is_paid = data.get("is_paid", False)
-        price = data.get("price", 0)
-        payment_provider = data.get("payment_provider")
 
-        if not media:
-            return await message.answer("❌ No media found")
+        share_media = data.get(
+            "share_media",
+            True
+        )
+
+        expiry = data.get(
+            "expiry",
+            0
+        )
+
+        is_paid = data.get(
+            "is_paid",
+            False
+        )
+
+        price = data.get(
+            "price",
+            0
+        )
+
+        payment_provider = data.get(
+            "payment_provider"
+        )
+
 
         expires_at = None
+
         if expiry > 0:
             expires_at = int(time.time()) + expiry
 
+
         pool = await get_pool()
 
-        user_id = int(message.from_user.id)  # 🔥 pastikan int (python aman)
+
+        user_id = int(
+            message.from_user.id
+        )
+
 
         # =========================
-        # AUTO REGISTER SELLER (FIX BIGINT)
+        # REGISTER USER / SELLER
         # =========================
+
         await pool.execute(
             """
             INSERT INTO users
             (
-                id,
+                telegram_id,
                 username,
-                first_name
+                fullname,
+                first_name,
+                chat_id
             )
             VALUES
-            ($1::bigint,$2,$3)
-            ON CONFLICT (id)
-            DO NOTHING
+            (
+                $1::bigint,
+                $2,
+                $3,
+                $4,
+                $5::bigint
+            )
+
+            ON CONFLICT (telegram_id)
+            DO UPDATE SET
+
+                username = EXCLUDED.username,
+                fullname = EXCLUDED.fullname,
+                first_name = EXCLUDED.first_name,
+                chat_id = EXCLUDED.chat_id
+
             """,
+
             user_id,
             message.from_user.username,
-            message.from_user.first_name
+            message.from_user.full_name,
+            message.from_user.first_name,
+            user_id
         )
 
+
         # =========================
-        # GENERATE UNIQUE CODE
+        # GENERATE CODE
         # =========================
+
         while True:
-            code = "DecoderFileBot" + "".join(
-                random.choices(
-                    string.ascii_uppercase + string.digits,
-                    k=10
+
+            code = (
+                "DecoderFileBot"
+                +
+                "".join(
+                    random.choices(
+                        string.ascii_uppercase
+                        + string.digits,
+                        k=10
+                    )
                 )
             )
 
+
             exists = await pool.fetchval(
-                "SELECT 1 FROM files WHERE code=$1",
+                """
+                SELECT 1
+                FROM files
+                WHERE code=$1
+                """,
                 code
             )
+
 
             if not exists:
                 break
 
-        share_link = f"{BOT_URL}?start=getFile_{code}"
+
+
+        share_link = (
+            f"{BOT_URL}?start=getFile_{code}"
+        )
+
 
         # =========================
-        # SAVE FILE (FIX BIGINT)
+        # SAVE FILE
         # =========================
+
         await pool.execute(
             """
             INSERT INTO files
@@ -627,78 +700,161 @@ async def finalize_save(message: Message, state: FSMContext):
                 creator,
                 category,
                 folder_name,
+
                 media,
+
                 share_media,
                 is_share,
+
                 owner_id,
                 seller_id,
+
                 media_count,
+
                 expires_at,
+
                 is_paid,
                 price,
                 payment_provider,
+
                 view_count,
                 download_count,
                 favorite_count
             )
+
+
             VALUES
             (
-                $1,$2,$3,$4,$5,$6,$7,$8,
-                $9::bigint,$10::bigint,
-                $11,$12,$13,$14,$15,$16,
-                $17,$18
+                $1,
+                $2,
+                $3,
+                $4,
+                $5,
+
+                $6,
+
+                $7,
+                $8,
+
+                $9::bigint,
+                $10::bigint,
+
+                $11,
+
+                $12,
+
+                $13,
+                $14,
+                $15,
+
+                $16,
+                $17,
+                $18
             )
+
             """,
+
             code,
             title,
             creator,
             category,
             folder_name,
+
             json.dumps(media),
+
             share_media,
             share_media,
-            user_id,          # 🔥 FIX
-            user_id,          # 🔥 FIX
+
+            user_id,
+            user_id,
+
             len(media),
+
             expires_at,
+
             is_paid,
             price,
             payment_provider,
+
             0,
             0,
             0
         )
 
+
         await state.clear()
 
-        media_mode = (
-            f"💰 Media Mode : Paid (Rp {price:,})".replace(",", ".")
-            if is_paid
-            else "🆓 Media Mode : Free"
-        )
+
+
+        # =========================
+        # RESULT MESSAGE
+        # =========================
+
+        if is_paid:
+
+            media_mode = (
+                "💰 Media Mode : Paid\n"
+                f"💵 Harga : Rp {price:,}"
+                .replace(",", ".")
+            )
+
+        else:
+
+            media_mode = (
+                "🆓 Media Mode : Free"
+            )
+
+
 
         text = (
+
             "✅ <b>FILE SAVED SUCCESSFULLY</b>\n\n"
-            f"📝 Folder : {folder_name}\n"
-            f"📋 Files : {len(media)}\n"
-            f"🔑 Code : <code>{code}</code>\n"
-            f"{media_mode}\n"
-            f"🔗 Link : {share_link}"
+
+            f"📝 Title : {title}\n"
+            f"📁 Folder : {folder_name}\n"
+            f"📂 Category : {category}\n"
+
+            f"📋 Files : {len(media)}\n\n"
+
+            f"🔑 Code :\n"
+            f"<code>{code}</code>\n\n"
+
+            f"{media_mode}\n\n"
+
+            f"🔗 Link :\n"
+            f"{share_link}"
+
         )
+
 
         await message.answer(
             text,
             parse_mode="HTML"
         )
 
+
+        # =========================
+        # LOG CHANNEL
+        # =========================
+
         try:
+
             me = await message.bot.get_me()
 
             await message.bot.send_message(
                 CHANNEL_ID,
-                text + f"\n\n🤖 Bot : @{me.username}",
+
+                text
+                +
+                f"\n\n🤖 Bot : @{me.username}",
+
                 parse_mode="HTML"
             )
 
-        except Exception:
-            pass
+
+        except Exception as e:
+
+            print(
+                "CHANNEL LOG ERROR:",
+                e
+            )
