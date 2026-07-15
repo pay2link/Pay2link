@@ -127,7 +127,7 @@ async def pay_file(call: CallbackQuery):
         existing = await fetchrow(
             """
             SELECT
-                payment_id,
+                invoice_id,
                 status
             FROM file_purchases
             WHERE user_id=$1
@@ -152,7 +152,7 @@ async def pay_file(call: CallbackQuery):
             if existing["status"] == "pending":
                 logger.info(
                     "Old pending invoice ignored | %s",
-                    existing["payment_id"]
+                    existing["invoice_id"]
                 )
 
         # =========================
@@ -215,7 +215,7 @@ async def pay_file(call: CallbackQuery):
                 file_code,
                 owner_id,
                 paid_price,
-                payment_id,
+                invoice_id,
                 status,
                 created_at
             )
@@ -355,7 +355,7 @@ async def pay_file(call: CallbackQuery):
             SET
                 qr_message_id=$1,
                 qr_chat_id=$2
-            WHERE payment_id=$3
+            WHERE invoice_id=$3
             """,
             msg.message_id,
             msg.chat.id,
