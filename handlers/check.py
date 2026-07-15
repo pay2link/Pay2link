@@ -64,7 +64,7 @@ async def check_payment(call: CallbackQuery):
             """
             SELECT user_id, file_code, status
             FROM file_purchases
-            WHERE payment_id=$1
+            WHERE invoice_id=$1
             """,
             invoice_id
         )
