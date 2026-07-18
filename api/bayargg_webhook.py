@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 from fastapi import APIRouter, Request
 
 from bot import bot
-from config import CHANNEL_ID
+from config import SALES_CHANNEL_ID
 from database import fetchrow, execute
 from utils.redis_client import redis_client
 from handlers.page import send_page
@@ -322,7 +322,7 @@ async def webhook(request: Request):
     # =========================
     try:
         await bot.send_message(
-            CHANNEL_ID,
+            SALES_CHANNEL_ID,
             (
                 "💰 <b>FILE BERHASIL TERJUAL</b>\n\n"
                 f"📂 Code : <code>{file_tx['file_code']}</code>\n"
