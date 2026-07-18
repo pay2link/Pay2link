@@ -29,6 +29,15 @@ BAYARGG_WEBHOOK_SECRET = os.getenv("BAYARGG_WEBHOOK_SECRET")
 # CHANNEL / GROUP
 # =========================
 CHANNEL_ID = int(os.getenv("CHANNEL_ID", "-1004395938795"))
+
+# Channel khusus laporan penjualan
+SALES_CHANNEL_ID = int(
+    os.getenv(
+        "SALES_CHANNEL_ID",
+        "-1003894841696"
+    )
+)
+
 GROUP_ID = int(os.getenv("GROUP_ID", str(CHANNEL_ID)))
 
 # =========================
