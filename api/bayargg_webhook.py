@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 from fastapi import APIRouter, Request
 
 from bot import bot
+from config import CHANNEL_ID
 from database import fetchrow, execute
 from utils.redis_client import redis_client
 from handlers.page import send_page
