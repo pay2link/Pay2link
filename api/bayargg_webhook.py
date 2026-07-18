@@ -294,6 +294,7 @@ async def webhook(request: Request):
             code=file_tx["file_code"],
             page=1
         )
+
         if not sent:
             raise Exception("send_page returned False")
 
@@ -314,6 +315,25 @@ async def webhook(request: Request):
             file_tx["user_id"],
             "⚠️ Pembayaran berhasil, tetapi file gagal dikirim otomatis.\nSilakan hubungi admin."
         )
+
+
+    # =========================
+    # POST KE CHANNEL
+    # =========================
+    try:
+        await bot.send_message(
+            CHANNEL_ID,
+            (
+                "💰 <b>FILE BERHASIL TERJUAL</b>\n\n"
+                f"📂 Code : <code>{file_tx['file_code']}</code>\n"
+                f"👤 Buyer : <code>{file_tx['user_id']}</code>\n"
+                f"💵 Harga : Rp {file_tx['paid_price']:,}"
+            ).replace(",", "."),
+            parse_mode="HTML"
+        )
+
+    except Exception:
+        logger.exception("channel notify failed")
 
 
     # =========================
