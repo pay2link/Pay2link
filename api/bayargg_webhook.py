@@ -203,7 +203,7 @@ async def webhook(request: Request):
             qr_message_id,
             qr_chat_id
         FROM file_purchases
-        WHERE payment_id=$1
+        WHERE invoice_id=$1
         """,
         invoice_id
     )
@@ -231,7 +231,7 @@ async def webhook(request: Request):
         SET
             status='paid',
             paid_at=NOW()
-        WHERE payment_id=$1
+        WHERE invoice_id=$1
           AND status='pending'
         """,
         invoice_id
@@ -286,7 +286,7 @@ async def webhook(request: Request):
     # SEND FILE OTOMATIS
     # =========================
     try:
-        await send_page(
+        sent = await send_page(
             bot=bot,
             chat_id=file_tx["user_id"],
             user_id=file_tx["user_id"],
