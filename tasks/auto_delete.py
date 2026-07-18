@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime, timezone
+from datetime import datetime
 
 from database import get_pool
 
@@ -9,7 +9,7 @@ async def auto_delete_worker():
         try:
             pool = await get_pool()
 
-            now = datetime.now(timezone.utc)
+            now = datetime.now()
 
             rows = await pool.fetch(
                 """
