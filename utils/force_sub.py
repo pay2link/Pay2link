@@ -10,7 +10,7 @@ from aiogram.exceptions import (
 # FORCE SUB CHANNELS
 # =========================
 CHANNELS = [
-    -1004395938795,
+    -1003712587847,
     -1003894841696,
 ]
 
