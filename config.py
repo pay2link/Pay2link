@@ -12,7 +12,7 @@ TIMEZONE = "Asia/Jakarta"
 # BOT
 # =========================
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-BOT_USERNAME = "DecoderFileBot"
+BOT_USERNAME = "Zyxfidzbot"
 BOT_URL = f"https://t.me/{BOT_USERNAME}"
 # =========================
 # DATABASE
@@ -28,7 +28,7 @@ BAYARGG_WEBHOOK_SECRET = os.getenv("BAYARGG_WEBHOOK_SECRET")
 # =========================
 # CHANNEL / GROUP
 # =========================
-CHANNEL_ID = int(os.getenv("CHANNEL_ID", "-1004395938795"))
+CHANNEL_ID = int(os.getenv("CHANNEL_ID", "-1003712587847"))
 
 # Channel khusus laporan penjualan
 SALES_CHANNEL_ID = int(
