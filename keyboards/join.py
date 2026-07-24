@@ -9,7 +9,7 @@ def join_kb():
             [
                 InlineKeyboardButton(
                     text="📢Channel Code",
-                    url="https://t.me/+mp7HeZPteus0ZDQ9"
+                    url="https://t.me/+-su4qQpS2n04OTFl"
                 )
             ],
             [
