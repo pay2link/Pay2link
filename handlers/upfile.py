@@ -655,13 +655,13 @@ async def finalize_save(message: Message, state: FSMContext):
         while True:
 
             code = (
-                "DecoderFileBot"
+                "Zyxfidzbot"
                 +
                 "".join(
                     random.choices(
                         string.ascii_uppercase
                         + string.digits,
-                        k=10
+                        k=7
                     )
                 )
             )
