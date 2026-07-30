@@ -11,7 +11,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from config import CHANNEL_ID, BOT_URL
+from config import CHANNEL_ID, BOT_USERNAME
 from database import get_pool
 from utils.force_sub import check_force_sub
 from keyboards.join import join_kb
@@ -811,18 +811,15 @@ async def finalize_save(message: Message, state: FSMContext):
             "✅ <b>FILE SAVED SUCCESSFULLY</b>\n\n"
 
             f"📝 Title : {title}\n"
-            f"📁 Folder : {folder_name}\n"
-            f"📂 Category : {category}\n"
-
             f"📋 Files : {len(media)}\n\n"
 
             f"🔑 Code :\n"
             f"<code>{code}</code>\n\n"
 
             f"{media_mode}\n\n"
+            f"🤖 Bot : @{BOT_USERNAME}\n\n"
 
-            f"🔗 Link :\n"
-            f"{share_link}"
+            "🔐 Kirim code tersebut ke bot untuk membuka file."
 
         )
 
