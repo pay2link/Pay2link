@@ -700,13 +700,6 @@ async def finalize_save(message: Message, state: FSMContext):
             if not exists:
                 break
 
-
-
-        share_link = (
-            f"{BOT_URL}?start=getFile_{code}"
-        )
-
-
         # =========================
         # SAVE FILE
         # =========================
