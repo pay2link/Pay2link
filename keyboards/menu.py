@@ -11,34 +11,12 @@ def home_kb():
 
             [
                 InlineKeyboardButton(
-                    text="📤 Upload File",
+                    text="📤 Upload Media",
                     callback_data="upfile"
                 ),
                 InlineKeyboardButton(
-                    text="📥 Get File",
+                    text="📥 Get Media",
                     callback_data="getfile"
-                )
-            ],
-
-            [
-                InlineKeyboardButton(
-                    text="🏆 Top File",
-                    callback_data="top_file"
-                ),
-                InlineKeyboardButton(
-                    text="🆕 New Code",
-                    callback_data="new_code"
-                )
-            ],
-
-            [
-                InlineKeyboardButton(
-                    text="🔎 Search Code",
-                    callback_data="search_code"
-                ),
-                InlineKeyboardButton(
-                    text="💰 Search Harga",
-                    callback_data="search_price"
                 )
             ],
 
@@ -48,21 +26,18 @@ def home_kb():
                     callback_data="account"
                 ),
                 InlineKeyboardButton(
-                    text="💎 VVIP",
-                    callback_data="vvip"
+                    text="💎 VIP",
+                    callback_data="vip"
                 )
             ],
 
             [
                 InlineKeyboardButton(
-                    text="💸 Withdraw",
-                    callback_data="withdraw"
-                )
-            ],
-
-            [
+                    text="📢 List Channel",
+                    callback_data="list_channel"
+                ),
                 InlineKeyboardButton(
-                    text="ℹ️ Bantuan",
+                    text="ℹ️ Help",
                     callback_data="help"
                 )
             ]
