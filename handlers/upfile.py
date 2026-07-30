@@ -654,16 +654,36 @@ async def finalize_save(message: Message, state: FSMContext):
 
         while True:
 
-            code = (
-                "Zyxfidzbot"
-                +
-                "".join(
-                    random.choices(
-                        string.ascii_uppercase
-                        + string.digits,
-                        k=7
-                    )
+            video_count = sum(
+                1 for x in media
+                if x["type"] == "video"
+            )
+
+            photo_count = sum(
+                1 for x in media
+                if x["type"] == "photo"
+            )
+
+            document_count = sum(
+                1 for x in media
+                if x["type"] == "document"
+            )
+
+
+            random_code = "".join(
+                random.choices(
+                    string.ascii_uppercase + string.digits,
+                    k=8
                 )
+            )
+
+
+            code = (
+                f"GGB-"
+                f"{video_count}V-"
+                f"{photo_count}P-"
+                f"{document_count}D-"
+                f"{random_code}"
             )
 
 
