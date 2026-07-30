@@ -7,23 +7,22 @@ from aiogram.fsm.context import FSMContext
 router = Router()
 
 
+# =========================
+# GLOBAL USER GUIDE
+# =========================
+
 @router.message()
 async def notify_user(message: Message, state: FSMContext):
-    """
-    Handler global:
-    - Kirim media -> arahkan ke UPFILE
-    - Kirim kode/link -> arahkan ke GETFILE
-    - Chat biasa -> arahkan ke HELP
-    """
 
-    # Jangan ganggu jika user sedang menggunakan fitur lain
-    current_state = await state.get_state()
-    if current_state:
+    # Jangan ganggu state aktif
+    if await state.get_state():
         return
 
-    # =====================================
-    # USER MENGIRIM MEDIA
-    # =====================================
+
+    # =========================
+    # MEDIA DETECT
+    # =========================
+
     if (
         message.video
         or message.photo
@@ -32,62 +31,73 @@ async def notify_user(message: Message, state: FSMContext):
         or message.animation
         or message.voice
     ):
+
         return await message.reply(
-            "📤 <b>Upload File</b>\n\n"
-            "Untuk mengupload file, silakan tekan tombol <b>UPFILE</b> terlebih dahulu.\n\n"
-            "❓ Jika masih bingung cara menggunakannya, silakan buka menu <b>HELP / BANTUAN</b> untuk melihat panduan lengkap."
+            "📤 <b>Upload Media</b>\n\n"
+            "Untuk upload file, silakan tekan menu:\n"
+            "📤 <b>Upload Media</b>\n\n"
+            "Bot akan membantu membuat kode file otomatis."
         )
 
-    # =====================================
-    # USER MENGIRIM TEXT
-    # =====================================
-    if message.text:
 
-        text = message.text.strip()
+    # =========================
+    # TEXT DETECT
+    # =========================
 
-        is_getfile_code = False
+    if not message.text:
+        return
 
-        if "getfile_" in text.lower():
-            is_getfile_code = True
 
-        elif re.search(
-            r"code\s*[:：]\s*[A-Za-z0-9_-]+",
-            text,
-            re.IGNORECASE
-        ):
-            is_getfile_code = True
+    text = message.text.strip()
 
-        elif re.search(
-            r"DecoderFileBot[A-Za-z0-9_-]+",
-            text
-        ):
-            is_getfile_code = True
 
-        # =====================================
-        # USER MENGIRIM KODE FILE
-        # =====================================
-        if is_getfile_code:
-            return await message.reply(
-                "📥 <b>Get File</b>\n\n"
-                "Untuk membuka file, silakan tekan tombol <b>GETFILE</b> terlebih dahulu, kemudian kirim kode file tersebut.\n\n"
-                "❓ Jika masih bingung, silakan buka menu <b>HELP / BANTUAN</b> untuk melihat panduan lengkap."
-            )
+    # =========================
+    # CODE FILE DETECT
+    # =========================
 
-        # =====================================
-        # CHAT BIASA
-        # =====================================
+    if re.search(
+        r"GGB-[A-Za-z0-9-]+",
+        text,
+        re.IGNORECASE
+    ):
+
         return await message.reply(
-            "👋 Halo!\n\n"
-            "Silakan pilih menu sesuai kebutuhan:\n\n"
-            "📤 <b>UPFILE</b>\n"
-            "Untuk upload file dan menghasilkan uang.\n\n"
-            "📥 <b>GETFILE</b>\n"
-            "Untuk membuka file menggunakan kode.\n\n"
-            "❓ <b>HELP / BANTUAN</b>\n"
-            "Berisi panduan lengkap mulai dari:\n"
-            "• Cara Upload File\n"
-            "• Cara Get File\n"
-            "• Cara Mendapatkan Cuan\n"
-            "• Cara Withdraw\n"
-            "• Informasi VVIP"
+            "📥 <b>Get Media</b>\n\n"
+            "Kode file terdeteksi.\n\n"
+            "Silakan buka menu:\n"
+            "📥 <b>Get Media</b>\n\n"
+            "Lalu kirim kode tersebut untuk mengambil file."
         )
+
+
+    # =========================
+    # LINK / START CODE
+    # =========================
+
+    if "start=getfile_" in text.lower():
+
+        return await message.reply(
+            "📥 <b>Get Media</b>\n\n"
+            "Link file terdeteksi.\n"
+            "Silakan gunakan menu 📥 <b>Get Media</b>."
+        )
+
+
+    # =========================
+    # DEFAULT CHAT
+    # =========================
+
+    await message.reply(
+        "🤖 <b>GGBOT</b>\n\n"
+        "Silakan pilih menu:\n\n"
+        "📤 <b>Upload Media</b>\n"
+        "Upload video, foto, atau dokumen.\n\n"
+        "📥 <b>Get Media</b>\n"
+        "Ambil file menggunakan kode.\n\n"
+        "👤 <b>Account</b>\n"
+        "Kelola akun dan saldo.\n\n"
+        "💎 <b>VIP</b>\n"
+        "Upgrade fitur premium.\n\n"
+        "ℹ️ <b>Help</b>\n"
+        "Panduan penggunaan bot."
+    )
