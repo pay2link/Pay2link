@@ -1,45 +1,55 @@
 from aiogram.types import (
     InlineKeyboardMarkup,
-    InlineKeyboardButton,
+    InlineKeyboardButton
 )
 
-from database import get_pool
 
-
-async def join_kb(lang: str = "en"):
-
-    if lang.startswith("id"):
-        check_text = "✅ Cek Bergabung"
-    else:
-        check_text = "✅ Check Membership"
-
-    pool = await get_pool()
-
-    rows = await pool.fetch(
-        """
-        SELECT channel_name, channel_url
-        FROM force_sub_channels
-        ORDER BY id
-        """
-    )
-
-    keyboard = []
-
-    for row in rows:
-        keyboard.append([
-            InlineKeyboardButton(
-                text=row["channel_name"],
-                url=row["channel_url"],
-            )
-        ])
-
-    keyboard.append([
-        InlineKeyboardButton(
-            text=check_text,
-            callback_data="check_sub",
-        )
-    ])
+def join_kb():
 
     return InlineKeyboardMarkup(
-        inline_keyboard=keyboard
+        inline_keyboard=[
+
+            [
+                InlineKeyboardButton(
+                    text="📢 Channel Update",
+                    url="https://t.me/+0sgsiLx3KONjODA0"
+                )
+            ],
+
+            [
+                InlineKeyboardButton(
+                    text="📢 Channel Update 2",
+                    url="https://t.me/+BTYmULtD_0RiYzk5"
+                )
+            ],
+
+            [
+                InlineKeyboardButton(
+                    text="💳 Channel Transaksi",
+                    url="https://t.me/+NrHk5eHAiTFiNzc1"
+                )
+            ],
+
+            [
+                InlineKeyboardButton(
+                    text="⚠️ Notifikasi Bot",
+                    url="https://t.me/+iG0rS6GFY3Y2NTNk"
+                )
+            ],
+
+            [
+                InlineKeyboardButton(
+                    text="💾 Backup Channel",
+                    url="https://t.me/+z7I7rz4TE2ozODBl"
+                )
+            ],
+
+            [
+                InlineKeyboardButton(
+                    text="✅ CHECK JOIN",
+                    callback_data="check_sub"
+                )
+            ]
+
+        ]
     )
