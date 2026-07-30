@@ -10,7 +10,7 @@ router = Router()
 # Contoh:
 # ADMIN_USERNAME = "adminvip"
 # =========================
-ADMIN_USERNAME = "tzyadmin"
+ADMIN_USERNAME = "ownergbot"
 
 
 # =========================
