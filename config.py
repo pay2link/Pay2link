@@ -12,7 +12,7 @@ TIMEZONE = "Asia/Jakarta"
 # BOT
 # =========================
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-BOT_USERNAME = "Zyxfidzbot"
+BOT_USERNAME = "Ggrobot"
 BOT_URL = f"https://t.me/{BOT_USERNAME}"
 # =========================
 # DATABASE
@@ -28,7 +28,7 @@ BAYARGG_WEBHOOK_SECRET = os.getenv("BAYARGG_WEBHOOK_SECRET")
 # =========================
 # CHANNEL / GROUP
 # =========================
-CHANNEL_ID = int(os.getenv("CHANNEL_ID", "-1003978483597"))
+CHANNEL_ID = int(os.getenv("CHANNEL_ID", "-1004449050731"))
 
 # Channel khusus laporan penjualan
 SALES_CHANNEL_ID = int(
@@ -55,7 +55,7 @@ WITHDRAW_CHANNEL_ID = int(
 # =========================
 ADMIN_IDS = [
     int(x)
-    for x in os.getenv("ADMIN_IDS", "6847035364").split(",")
+    for x in os.getenv("ADMIN_IDS", "6665664367").split(",")
     if x.strip().isdigit()
 ]
 # =========================
