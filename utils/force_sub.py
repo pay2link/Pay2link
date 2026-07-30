@@ -6,17 +6,11 @@ from aiogram.exceptions import (
     TelegramForbiddenError,
 )
 
-# =========================
-# FORCE SUB CHANNELS
-# =========================
-CHANNELS = [
-    -1003978483597,
-    -1003894841696,
-]
+from database import get_pool
 
 
 # =========================
-# CHECK FORCE SUB
+# CHECK FORCE SUBSCRIBE
 # =========================
 async def check_force_sub(bot: Bot, user_id: int) -> bool:
     """
@@ -25,7 +19,23 @@ async def check_force_sub(bot: Bot, user_id: int) -> bool:
         False -> User belum join salah satu channel.
     """
 
-    for channel_id in CHANNELS:
+    pool = await get_pool()
+
+    channels = await pool.fetch(
+        """
+        SELECT channel_id
+        FROM force_sub_channels
+        ORDER BY id
+        """
+    )
+
+    # Jika belum ada channel, izinkan semua user.
+    if not channels:
+        return True
+
+    for row in channels:
+        channel_id = row["channel_id"]
+
         try:
             member = await bot.get_chat_member(
                 chat_id=channel_id,
@@ -39,18 +49,9 @@ async def check_force_sub(bot: Bot, user_id: int) -> bool:
             ):
                 return False
 
-        except TelegramBadRequest as e:
+        except (TelegramBadRequest, TelegramForbiddenError) as e:
             logging.error(
-                "ForceSub TelegramBadRequest | Channel=%s User=%s Error=%s",
-                channel_id,
-                user_id,
-                e,
-            )
-            return True
-
-        except TelegramForbiddenError as e:
-            logging.error(
-                "ForceSub TelegramForbiddenError | Channel=%s User=%s Error=%s",
+                "ForceSub Error | Channel=%s User=%s Error=%s",
                 channel_id,
                 user_id,
                 e,
