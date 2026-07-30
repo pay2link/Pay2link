@@ -63,32 +63,40 @@ from handlers.notify import router as notify_router
 # =========================
 
 dp.include_router(start_router)
+
+# cek join channel
 dp.include_router(check_sub_router)
+
+# fitur utama
 dp.include_router(upfile_router)
 dp.include_router(getfile_router)
+
 dp.include_router(search_price_router)
 dp.include_router(search_router)
+
 dp.include_router(top_router)
 dp.include_router(new_code_router)
+
 dp.include_router(page_router)
+
 dp.include_router(pay_router)
 dp.include_router(check_router)
+
 dp.include_router(cancel_router)
+
 dp.include_router(account_router)
 dp.include_router(my_code_router)
+
 dp.include_router(vvip_router)
+
+# channel & bantuan
 dp.include_router(channel_router)
 dp.include_router(help_router)
 
-# =========================
-# WITHDRAW
-# =========================
+# withdraw
 dp.include_router(withdraw_router)
 dp.include_router(withdraw_confirm_router)
 
-# =========================
-# ADMIN
-# =========================
-
+# admin
 dp.include_router(admin_router)
 dp.include_router(notify_router)
