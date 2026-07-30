@@ -47,7 +47,9 @@ async def getfile_start(call: CallbackQuery, state: FSMContext):
     await state.set_state(GetFileState.wait_code)
 
     await call.message.edit_text(
-        "𝗘𝗔𝗥𝗡𝗙𝗜𝗟𝗘𝗕𝗢𝗫\n\n🔑 KIRIM KODE FILE"
+        "🤖 <b>𝗚𝗚𝗕𝗢𝗧</b>\n\n"
+        "🔑 Kirim kode file kamu.",
+        parse_mode="HTML"
     )
 
     await call.answer()
@@ -67,22 +69,22 @@ async def receive_code(message: Message, state: FSMContext):
     text = message.text.strip()
     code = None
 
-    m = re.search(r"getFile_([A-Za-z0-9_-]+)", text, re.IGNORECASE)
+
+    # Ambil dari format:
+    # GGB-5V-3P-5D-8X29KD4P
+
+    m = re.search(
+        r"(GGB-[A-Za-z0-9-]+)",
+        text,
+        re.IGNORECASE
+    )
+
     if m:
-        code = m.group(1)
+        code = m.group(1).upper()
+
 
     if not code:
-        m = re.search(r"code\s*[:：]\s*([A-Za-z0-9_-]+)", text, re.IGNORECASE)
-        if m:
-            code = m.group(1)
-
-    if not code:
-        m = re.search(r"(DecoderFileBot[A-Za-z0-9_-]+)", text)
-        if m:
-            code = m.group(1)
-
-    if not code:
-        code = text
+        code = text.upper()
 
     pool = await get_pool()
 
@@ -209,6 +211,26 @@ async def receive_code(message: Message, state: FSMContext):
     share_status = "PUBLIC" if share_media else "PRIVATE"
     protect = not share_media
 
+
+    # =========================
+    # CODE INFO
+    # =========================
+
+    parts = code.split("-")
+
+    info = ""
+
+    try:
+        if len(parts) >= 5:
+            info = (
+                f"🎬 Video : {parts[1].replace('V','')}\n"
+                f"🖼 Photo : {parts[2].replace('P','')}\n"
+                f"📄 Doc : {parts[3].replace('D','')}\n"
+            )
+
+    except Exception:
+        info = ""
+
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [
@@ -221,10 +243,10 @@ async def receive_code(message: Message, state: FSMContext):
     )
 
     caption = (
-        "𝗘𝗔𝗥𝗡𝗙𝗜𝗟𝗘𝗕𝗢𝗫\n"
-        f"🔑 CODE: {code}\n"
-        f"📊 FILE: {len(media)}\n"
-        f"📤 SHARE: {share_status}"
+        "🤖 <b>𝗚𝗚𝗕𝗢𝗧</b>\n\n"
+        f"🔑 CODE : <code>{code}</code>\n"
+        f"{info}\n"
+        f"📤 SHARE : {share_status}"
     )
 
     try:
