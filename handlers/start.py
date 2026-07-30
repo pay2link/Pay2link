@@ -6,10 +6,8 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
 from utils.force_sub import check_force_sub
-from utils.lang import get_text
 from keyboards.menu import home_kb
 from keyboards.join import join_kb
-from keyboards.language import language_kb
 from database import get_pool
 
 router = Router()
@@ -41,6 +39,7 @@ async def start_cmd(message: Message, state: FSMContext):
             )
             VALUES
             ($1,$2,$3,0)
+
             ON CONFLICT (telegram_id)
             DO UPDATE SET
                 username = EXCLUDED.username,
@@ -51,26 +50,9 @@ async def start_cmd(message: Message, state: FSMContext):
             message.chat.id
         )
 
-        lang = await pool.fetchval(
-            """
-            SELECT language
-            FROM users
-            WHERE telegram_id=$1
-            """,
-            user_id
-        )
-
-        if not lang:
-            return await message.answer(
-                "🌐 <b>Select Language / Pilih Bahasa</b>\n\n"
-                "🇮🇩 Silakan pilih bahasa.\n"
-                "🇺🇸 Please choose your language.",
-                parse_mode="HTML",
-                reply_markup=language_kb()
-            )
-
         loading = await message.answer(
-            get_text(lang, "loading"),
+            "🤖 <b>𝗚𝗚𝗕𝗢𝗧</b>\n"
+            "<i>Loading...</i>",
             parse_mode="HTML"
         )
 
@@ -78,8 +60,7 @@ async def start_cmd(message: Message, state: FSMContext):
             message,
             loading,
             user_id,
-            username,
-            lang
+            username
         )
 
     except Exception:
@@ -95,7 +76,7 @@ async def start_cmd(message: Message, state: FSMContext):
 # PROCESS START
 # =========================
 
-async def process_start(message, loading, user_id, username, lang):
+async def process_start(message, loading, user_id, username):
 
     try:
         sub = await check_force_sub(
@@ -108,7 +89,8 @@ async def process_start(message, loading, user_id, username, lang):
 
     if not sub:
         return await loading.edit_text(
-            get_text(lang, "join_required"),
+            "📢 <b>𝗝𝗼𝗶𝗻 𝗗𝗶𝗽𝗲𝗿𝗹𝘂𝗸𝗮𝗻</b>\n\n"
+            "Silakan bergabung ke semua channel terlebih dahulu.",
             parse_mode="HTML",
             reply_markup=join_kb()
         )
@@ -129,8 +111,7 @@ async def process_start(message, loading, user_id, username, lang):
         loading,
         user_id,
         user["username"] or username,
-        user["balance"] or 0,
-        lang
+        user["balance"] or 0
     )
 
 
@@ -138,7 +119,13 @@ async def process_start(message, loading, user_id, username, lang):
 # HOME UI
 # =========================
 
-async def render_home_fast(bot, message, user_id, username, balance, lang):
+async def render_home_fast(
+    bot,
+    message,
+    user_id,
+    username,
+    balance
+):
 
     balance = f"{int(balance):,}".replace(",", ".")
 
@@ -153,7 +140,8 @@ async def render_home_fast(bot, message, user_id, username, balance, lang):
         f"💰 <b>Balance</b>\n"
         f"<code>Rp {balance}</code>\n"
         "━━━━━━━━━━━━━━━━━━\n\n"
-        f"{get_text(lang, 'welcome')}"
+        "✨ <b>Selamat datang di GGBOT.</b>\n"
+        "Silakan pilih menu yang tersedia di bawah."
     )
 
     try:
@@ -184,17 +172,6 @@ async def back_home(call: CallbackQuery, state: FSMContext):
 
     user_id = call.from_user.id
 
-    pool = await get_pool()
-
-    lang = await pool.fetchval(
-        """
-        SELECT language
-        FROM users
-        WHERE telegram_id=$1
-        """,
-        user_id
-    ) or "id"
-
     try:
         ok = await check_force_sub(
             call.bot,
@@ -206,10 +183,13 @@ async def back_home(call: CallbackQuery, state: FSMContext):
 
     if not ok:
         return await call.message.answer(
-            get_text(lang, "join_required"),
+            "📢 <b>𝗝𝗼𝗶𝗻 𝗗𝗶𝗽𝗲𝗿𝗹𝘂𝗸𝗮𝗻</b>\n\n"
+            "Silakan bergabung ke semua channel terlebih dahulu.",
             parse_mode="HTML",
             reply_markup=join_kb()
         )
+
+    pool = await get_pool()
 
     user = await pool.fetchrow(
         """
@@ -225,6 +205,5 @@ async def back_home(call: CallbackQuery, state: FSMContext):
         call.message,
         user_id,
         user["username"] or "unknown",
-        user["balance"] or 0,
-        lang
+        user["balance"] or 0
     )
