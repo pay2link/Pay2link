@@ -6,7 +6,12 @@ from aiogram.types import (
 from database import get_pool
 
 
-async def join_kb():
+async def join_kb(lang: str = "en"):
+
+    if lang.startswith("id"):
+        check_text = "✅ Cek Bergabung"
+    else:
+        check_text = "✅ Check Membership"
 
     pool = await get_pool()
 
@@ -30,7 +35,7 @@ async def join_kb():
 
     keyboard.append([
         InlineKeyboardButton(
-            text="✅ Check",
+            text=check_text,
             callback_data="check_sub",
         )
     ])
