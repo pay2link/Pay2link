@@ -6,64 +6,80 @@ from aiogram.exceptions import (
     TelegramForbiddenError,
 )
 
-from database import get_pool
+
+# =========================
+# FORCE SUB CHANNEL
+# =========================
+
+FORCE_CHANNELS = [
+
+    # Channel Update
+    -1004449050731,
+
+    # Channel Update 2
+    -1003978483597,
+
+    # Channel Transaksi
+    -1003894841696,
+
+]
 
 
 # =========================
-# CHECK FORCE SUBSCRIBE
+# CHECK FORCE SUB
 # =========================
-async def check_force_sub(bot: Bot, user_id: int) -> bool:
-    """
-    Return:
-        True  -> User sudah join semua channel.
-        False -> User belum join salah satu channel.
-    """
 
-    pool = await get_pool()
+async def check_force_sub(
+    bot: Bot,
+    user_id: int
+) -> bool:
 
-    channels = await pool.fetch(
-        """
-        SELECT channel_id
-        FROM force_sub_channels
-        ORDER BY id
-        """
-    )
 
-    # Jika belum ada channel, izinkan semua user.
-    if not channels:
+    if not FORCE_CHANNELS:
         return True
 
-    for row in channels:
-        channel_id = row["channel_id"]
+
+    for channel_id in FORCE_CHANNELS:
 
         try:
+
             member = await bot.get_chat_member(
                 chat_id=channel_id,
-                user_id=user_id,
+                user_id=user_id
             )
+
 
             if member.status not in (
                 "member",
                 "administrator",
-                "creator",
+                "creator"
             ):
+
                 return False
 
-        except (TelegramBadRequest, TelegramForbiddenError) as e:
+
+        except (
+            TelegramBadRequest,
+            TelegramForbiddenError
+        ) as e:
+
             logging.error(
-                "ForceSub Error | Channel=%s User=%s Error=%s",
+                "FORCE SUB ERROR | Channel=%s User=%s Error=%s",
                 channel_id,
                 user_id,
-                e,
+                e
             )
-            return True
+
+            return False
+
 
         except Exception:
+
             logging.exception(
-                "ForceSub Unknown Error | Channel=%s User=%s",
-                channel_id,
-                user_id,
+                "FORCE SUB UNKNOWN ERROR"
             )
-            return True
+
+            return False
+
 
     return True
