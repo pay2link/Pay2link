@@ -851,9 +851,7 @@ async def finalize_save(message: Message, state: FSMContext):
 
             await message.bot.send_message(
                 CHANNEL_ID,
-
-                text
-
+                text,
                 parse_mode="HTML"
             )
 
