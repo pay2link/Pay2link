@@ -825,10 +825,8 @@ async def finalize_save(message: Message, state: FSMContext):
 
             f"📝 Title : {title}\n"
             f"📋 Files : {len(media)}\n\n"
-
             f"🔑 Code :\n"
             f"<code>{code}</code>\n\n"
-
             f"{media_mode}\n\n"
             f"🤖 Bot : @{BOT_USERNAME}\n\n"
 
@@ -855,8 +853,6 @@ async def finalize_save(message: Message, state: FSMContext):
                 CHANNEL_ID,
 
                 text
-                +
-                f"\n\n🤖 Bot : @{me.username}",
 
                 parse_mode="HTML"
             )
