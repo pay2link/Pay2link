@@ -14,18 +14,25 @@ CHANNEL_PAYMENT = -1003894841696
 CHECK_INTERVAL = 10
 
 
+SUCCESS_STATUS = [
+    "success",
+    "paid",
+    "settlement",
+    "completed",
+    "berhasil"
+]
+
+
 async def payment_worker():
 
-    logger.info("💳 Payment worker running...")
+    logger.info(
+        "💳 Payment worker running..."
+    )
 
 
     while True:
 
         try:
-
-            # =========================
-            # AMBIL PAYMENT PENDING
-            # =========================
 
             payments = await fetch(
                 """
@@ -44,18 +51,7 @@ async def payment_worker():
             )
 
 
-            if not payments:
-
-                await asyncio.sleep(
-                    CHECK_INTERVAL
-                )
-
-                continue
-
-
-
             for pay in payments:
-
 
                 invoice_id = pay["invoice_id"]
 
@@ -63,7 +59,7 @@ async def payment_worker():
                 try:
 
                     # =========================
-                    # CEK STATUS BAYARGG
+                    # CEK BAYARGG
                     # =========================
 
                     result = await BayarGG.check_payment(
@@ -72,37 +68,31 @@ async def payment_worker():
 
 
                     logger.info(
-                        "CHECK PAYMENT %s | %s",
+                        "CHECK %s => %s",
                         invoice_id,
                         result
                     )
 
 
                     if not result:
-
                         continue
 
 
 
-                    status = (
-                        result.get("status")
-                        or ""
+                    status = str(
+                        result.get("status", "")
                     ).lower()
 
 
 
-                    if status not in [
-                        "success",
-                        "paid",
-                        "settlement"
-                    ]:
+                    if status not in SUCCESS_STATUS:
 
                         continue
 
 
 
                     # =========================
-                    # CEK ULANG AGAR TIDAK DOUBLE
+                    # LOCK STATUS
                     # =========================
 
                     current = await fetchrow(
@@ -120,6 +110,11 @@ async def payment_worker():
 
 
                     if current["status"] == "paid":
+
+                        logger.info(
+                            "SKIP ALREADY PAID %s",
+                            invoice_id
+                        )
 
                         continue
 
@@ -140,9 +135,8 @@ async def payment_worker():
                     )
 
 
-
                     logger.info(
-                        "PAYMENT PAID %s",
+                        "✅ PAYMENT SUCCESS %s",
                         invoice_id
                     )
 
@@ -160,33 +154,39 @@ async def payment_worker():
                                 "💰 <b>PEMBAYARAN BERHASIL</b>\n\n"
                                 f"👤 User ID : "
                                 f"<code>{pay['user_id']}</code>\n"
-                                f"📁 File : "
+                                f"📁 File Code : "
                                 f"<code>{pay['file_code']}</code>\n"
                                 f"💵 Harga : "
                                 f"Rp {pay['paid_price']:,}\n"
                                 f"🧾 Invoice : "
                                 f"<code>{invoice_id}</code>\n\n"
-                                "✅ Pembelian berhasil."
+                                "✅ File berhasil dibeli."
                             ).replace(",", "."),
                             parse_mode="HTML"
+                        )
+
+
+                        logger.info(
+                            "CHANNEL POST OK %s",
+                            invoice_id
                         )
 
 
                     except Exception:
 
                         logger.exception(
-                            "CHANNEL POST FAILED"
+                            "CHANNEL POST ERROR %s",
+                            invoice_id
                         )
 
 
 
                     # =========================
-                    # LANJUT KIRIM FILE
+                    # TODO KIRIM FILE
                     # =========================
 
-                    # TODO:
-                    # panggil fungsi kirim file
-                    # yang sudah kamu punya disini
+                    # nanti sambungkan handler
+                    # send_file(pay["user_id"], pay["file_code"])
 
 
 
@@ -202,9 +202,8 @@ async def payment_worker():
         except Exception:
 
             logger.exception(
-                "PAYMENT WORKER ERROR"
+                "PAYMENT WORKER LOOP ERROR"
             )
-
 
 
         await asyncio.sleep(
